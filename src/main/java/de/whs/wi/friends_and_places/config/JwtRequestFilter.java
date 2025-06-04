@@ -49,7 +49,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             try {
                 username = jwtUtil.extractUsername(jwtToken);
             } catch (Exception e) {
-                // Handle token parsing exceptions
+                // Log the exception details for debugging
+                logger.error("Error parsing JWT token: {}", e.getMessage(), e);
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
                 return;
             }
