@@ -13,6 +13,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Security configuration class for the application.
+ * It configures authentication, authorization, and JWT filtering.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -45,6 +49,11 @@ public class SecurityConfig {
                 return authenticationManagerBuilder.build();
     }
 
+    /**
+     * Configures the SecurityFilterChain bean to handle HTTP security.
+     * It disables CSRF protection, allows unauthenticated access to auth endpoints,
+     * and requires authentication for all other requests.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
