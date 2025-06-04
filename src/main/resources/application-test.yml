@@ -9,7 +9,7 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
     show-sql: true
     hibernate:
-      ddl-auto: create-drop # Enusres a clean database for each test run
+      ddl-auto: create-drop # Ensures a clean database for each test run
     properties:
       hibernate:
         format_sql: true
