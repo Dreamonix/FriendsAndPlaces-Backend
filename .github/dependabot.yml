@@ -13,7 +13,7 @@ updates:
 
     # Limit the number of open pull requests
     # This helps prevent PR overload.
-    open--pull-requests-limit: 10
+    open-pull-requests-limit: 10
 
     # Configure the commit message format
     commit-message:
