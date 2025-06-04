@@ -17,6 +17,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest # Use the latest Ubuntu virtual machine
+
+    permissions:
+      contents: write
     
     steps:
     - name: Checkout code
