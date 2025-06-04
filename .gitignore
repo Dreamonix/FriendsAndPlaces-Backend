@@ -48,3 +48,6 @@ temp/
 
 # Crash dumps, etc.
 hs_err_pid*
+
+# Secret files
+application-dev.yml
