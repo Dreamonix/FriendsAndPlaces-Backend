@@ -3,6 +3,7 @@ package de.whs.wi.friends_and_places.service;
 import de.whs.wi.friends_and_places.model.User;
 import de.whs.wi.friends_and_places.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,11 +16,11 @@ import static org.springframework.security.core.userdetails.User.withUsername;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Autowired
-    public CustomUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public CustomUserDetailsService(@Lazy UserService userService) {
+        this.userService = userService;
     }
 
     /**
@@ -31,7 +32,7 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+        User user = userService.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
         UserBuilder builder = withUsername(user.getEmail());
         builder.password(user.getPassword());
