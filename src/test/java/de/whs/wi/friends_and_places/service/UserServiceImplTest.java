@@ -1,7 +1,9 @@
 package de.whs.wi.friends_and_places.service;
 
+import de.whs.wi.friends_and_places.controller.dto.UserRegisterDTO;
 import de.whs.wi.friends_and_places.model.User;
 import de.whs.wi.friends_and_places.repository.UserRepository;
+import de.whs.wi.friends_and_places.service.implementations.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -15,13 +17,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class UserServiceTest {
+class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @BeforeEach
     void setUp() {
@@ -32,7 +34,16 @@ class UserServiceTest {
     void testRegister() {
         when(passwordEncoder.encode(any())).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
-        User user = userService.register("user", "email@test.com", "pass", "city", "zip", "street", "house", "mobile");
+        UserRegisterDTO dto = new UserRegisterDTO();
+        dto.setUsername("user");
+        dto.setEmail("email@test.com");
+        dto.setPassword("pass");
+        dto.setCity("city");
+        dto.setZipCode("zip");
+        dto.setStreet("street");
+        dto.setHouseNumber("house");
+        dto.setMobile("mobile");
+        User user = userService.register(dto);
         assertEquals("user", user.getUsername());
         assertEquals("email@test.com", user.getEmail());
         assertEquals("encodedPassword", user.getPassword());

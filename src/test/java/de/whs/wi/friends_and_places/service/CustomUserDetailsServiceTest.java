@@ -1,7 +1,6 @@
 package de.whs.wi.friends_and_places.service;
 
 import de.whs.wi.friends_and_places.model.User;
-import de.whs.wi.friends_and_places.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,7 +16,7 @@ import static org.mockito.Mockito.*;
 
 class CustomUserDetailsServiceTest {
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
     @InjectMocks
     private CustomUserDetailsService customUserDetailsService;
 
@@ -31,7 +30,7 @@ class CustomUserDetailsServiceTest {
         User user = new User();
         user.setEmail("test@example.com");
         user.setPassword("password");
-        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(userService.findByEmail("test@example.com")).thenReturn(Optional.of(user));
         UserDetails userDetails = customUserDetailsService.loadUserByUsername("test@example.com");
         assertEquals("test@example.com", userDetails.getUsername());
         assertEquals("password", userDetails.getPassword());
@@ -40,7 +39,7 @@ class CustomUserDetailsServiceTest {
 
     @Test
     void testLoadUserByUsername_NotFound() {
-        when(userRepository.findByEmail("notfound@example.com")).thenReturn(Optional.empty());
+        when(userService.findByEmail("notfound@example.com")).thenReturn(Optional.empty());
         assertThrows(UsernameNotFoundException.class, () ->
                 customUserDetailsService.loadUserByUsername("notfound@example.com"));
     }
