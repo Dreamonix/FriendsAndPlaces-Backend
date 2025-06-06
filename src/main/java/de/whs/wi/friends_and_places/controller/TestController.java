@@ -48,7 +48,7 @@ public class TestController {
             response.put("authName", auth.getName());
             response.put("authType", auth.getClass().getName());
             response.put("authIsAuthenticated", auth.isAuthenticated());
-            response.put("authDetails", auth.getDetails() != null ? auth.getDetails().toString() : "null");
+            // auth.getDetails() is omitted to prevent potential leakage of sensitive information.
         } else {
             response.put("authInfo", "Authentication is null");
         }
