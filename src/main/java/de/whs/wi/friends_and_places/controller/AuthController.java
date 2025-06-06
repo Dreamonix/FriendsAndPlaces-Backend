@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -63,7 +66,7 @@ public class AuthController {
                     content = { @Content(mediaType = "application/json",
                             examples = {@io.swagger.v3.oas.annotations.media.ExampleObject(
                                     name = "JWT Token",
-                                    value = "\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsImlhdCI6MTY0MzA0MzIwMCwiZXhwIjoxNjQzMDQ2ODAwfQ.jFR2bNS8b4aT5myLBMTdH4ZQHXnrLKH9KYJ1Oah_KQU\""
+                                    value = "{\"token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsImlhdCI6MTY0MzA0MzIwMCwiZXhwIjoxNjQzMDQ2ODAwfQ.jFR2bNS8b4aT5myLBMTdH4ZQHXnrLKH9KYJ1Oah_KQU\"}"
                             )}) }),
             @ApiResponse(responseCode = "401", description = "Invalid username or password",
                     content = { @Content(mediaType = "application/json",
@@ -76,6 +79,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginDTO user) {
         String jwt = userService.authenticate(user);
-        return new ResponseEntity<>(jwt, HttpStatus.OK);
+        Map<String, String> response = new HashMap<>();
+        response.put("token", jwt);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -1,161 +1,107 @@
-# Authentication Integration Testing Documentation
+# Authentication Testing Guide
 
-## Overview
+This document provides examples of how to test the authentication endpoints using different tools.
 
-This document describes the integration tests implemented for the authentication system in the Friends and Places application. These tests verify that the complete registration and login flows work correctly, including JWT token generation and validation.
+## Testing with cURL
 
-## Test Coverage
-
-The integration tests focus on the following key aspects of the authentication system:
-
-1. **User Registration**
-   - Successful registration with valid data
-   - Handling duplicate registration attempts
-
-2. **User Authentication**
-   - Login with valid credentials
-   - Handling invalid login attempts
-
-3. **JWT Token Management**
-   - Generation of JWT tokens upon successful authentication
-   - Validation of JWT token contents and expiration
-
-## Test Implementation
-
-The integration tests are implemented in the `AuthenticationIntegrationTest` class, which uses Spring Boot's testing framework with `MockMvc` for simulating HTTP requests.
-
-### Test Environment
-
-- Tests run with the `test` profile activated (`@ActiveProfiles("test")`)
-- Database is cleaned up after each test to ensure test isolation
-- Tests use real components (repositories, services) but with mocked HTTP requests
-
-### Test Data
-
-A test user is created for each test with the following information:
-
-```java
-testUser = new UserRegisterDTO();
-testUser.setUsername("testuser");
-testUser.setEmail("test@example.com");
-testUser.setPassword("Password123!");
-testUser.setCity("Test City");
-testUser.setZipCode("12345");
-testUser.setStreet("Test Street");
-testUser.setHouseNumber("123");
-testUser.setMobile("1234567890");
-```
-
-## Test Cases
-
-### 1. Complete Registration and Login Flow Test
-
-**Method:** `testCompleteRegistrationAndLoginFlow()`
-
-**Purpose:** Verifies the complete authentication flow from registration to login.
-
-**Steps:**
-1. Register a new user with valid data
-2. Verify the user is created in the database
-3. Login with the user's credentials
-4. Verify a JWT token is generated
-5. Validate the token's username and expiration
-
-**Assertions:**
-- User is successfully saved to the database
-- Username and email match the registration data
-- JWT token is not null or empty
-- Token contains the correct username/email
-- Token is not expired
-
-### 2. Registration with Existing User Test
-
-**Method:** `testRegistrationWithExistingUser()`
-
-**Purpose:** Verifies that the system properly handles duplicate registration attempts.
-
-**Steps:**
-1. Register a new user with valid data
-2. Attempt to register the same user again
-
-**Assertions:**
-- The second registration attempt fails with an appropriate error
-- If the application returns a 4xx status, verify the error message indicates the user already exists
-- If the application throws an exception, verify it's an `IllegalArgumentException` with the message "User already exists"
-
-### 3. Invalid Login Credentials Test
-
-**Method:** `testInvalidLoginCredentials()`
-
-**Purpose:** Verifies that the system properly rejects login attempts with invalid credentials.
-
-**Steps:**
-1. Register a new user
-2. Attempt to login with incorrect password
-
-**Assertions:**
-- The login attempt fails
-- If the application returns a 4xx status, verify it's an authentication failure
-- If the application throws an exception, verify it's a `BadCredentialsException`
-
-### 4. Security Context Holder and JWT Token Test
-
-**Method:** `testSecurityContextHolderAndJwtToken()`
-
-**Purpose:** Verifies that JWT tokens are correctly generated and contain valid information.
-
-**Steps:**
-1. Register a new user
-2. Login with the user's credentials
-3. Extract and validate the JWT token
-
-**Assertions:**
-- JWT token is not null
-- Token contains the correct username/email
-- Token is not expired
-
-## Future Test Enhancements
-
-The test class includes commented code that can be used to test protected endpoints once they are implemented:
-
-```java
-// Try to access a protected endpoint without token - should be forbidden
-mockMvc.perform(get("/api/v1/your-protected-endpoint"))
-        .andExpect(status().isForbidden());
-
-// Access the same endpoint with token - should be authorized
-mockMvc.perform(get("/api/v1/your-protected-endpoint")
-        .header("Authorization", "Bearer " + token))
-        .andExpect(status().isOk());
-```
-
-## Running the Tests
-
-The integration tests can be run using Maven:
+### User Registration
 
 ```bash
-mvn test -Dtest=AuthenticationIntegrationTest
+curl -X POST http://localhost:8080/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testuser",
+    "email": "test@example.com",
+    "password": "securePassword123",
+    "city": "Berlin",
+    "zipCode": "10115",
+    "street": "Teststraße",
+    "houseNumber": "42",
+    "mobile": "+491234567890"
+  }'
 ```
 
-Or through your IDE's test runner.
+### User Login
 
-## Error Handling
+```bash
+curl -X POST http://localhost:8080/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "securePassword123"
+  }'
+```
 
-The tests are designed to be robust against different error handling approaches:
+The response will contain a JWT token that should be included in subsequent requests:
 
-1. **Status Code-based Errors:** If the application returns HTTP status codes for errors (e.g., 400 Bad Request, 401 Unauthorized)
-2. **Exception-based Errors:** If the application throws exceptions that are propagated to the servlet container
+```json
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNjQ0MzM0NTY3LCJleHAiOjE2NDQzMzgxNjd9.8Tj1HZhSAZ_IbY3OsP8JXYcVViLKRF0VsEKlA-1G5XA"
+```
 
-Each test includes appropriate handling for both approaches to ensure the tests pass regardless of how the application implements error handling.
+### Accessing Protected Resources
 
-## Best Practices Implemented
+```bash
+curl -X GET http://localhost:8080/api/v1/some-protected-endpoint \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNjQ0MzM0NTY3LCJleHAiOjE2NDQzMzgxNjd9.8Tj1HZhSAZ_IbY3OsP8JXYcVViLKRF0VsEKlA-1G5XA"
+```
 
-1. **Test Isolation:** Each test method is independent and cleans up after itself
-2. **Comprehensive Coverage:** Tests cover both successful and error scenarios
-3. **Realistic Data:** Tests use realistic test data that mimics actual user input
-4. **Flexible Assertions:** Tests can handle different implementation approaches
-5. **Clear Documentation:** Each test is well-documented with its purpose, steps, and assertions
+## Testing with Postman
 
-## Conclusion
+1. **Setup a Collection**:
+   - Create a new collection named "Friends and Places API"
+   - Add a variable called `baseUrl` with value `http://localhost:8080`
+   - Add a variable called `token` (will be populated after login)
 
-The integration tests provide comprehensive coverage of the authentication system, ensuring that registration, login, and JWT token generation work correctly. These tests serve as both validation of the current implementation and regression protection for future changes.
+2. **Register Request**:
+   - Method: POST
+   - URL: {{baseUrl}}/api/v1/auth/register
+   - Body (raw JSON):
+     ```json
+     {
+       "username": "postmanuser",
+       "email": "postman@example.com",
+       "password": "securePassword123",
+       "city": "Berlin",
+       "zipCode": "10115",
+       "street": "Postmanstraße",
+       "houseNumber": "123",
+       "mobile": "+491234567890"
+     }
+     ```
+
+3. **Login Request**:
+   - Method: POST
+   - URL: {{baseUrl}}/api/v1/auth/login
+   - Body (raw JSON):
+     ```json
+     {
+       "email": "postman@example.com",
+       "password": "securePassword123"
+     }
+     ```
+   - Tests tab (to automatically set the token variable):
+     ```javascript
+     var jsonData = pm.response.json();
+     pm.environment.set("token", jsonData);
+     ```
+
+4. **Protected Endpoint Request**:
+   - Method: GET
+   - URL: {{baseUrl}}/api/v1/some-protected-endpoint
+   - Authorization tab: Bearer Token, value: {{token}}
+
+## Common Issues
+
+1. **401 Unauthorized**:
+   - Check if you're using the correct email/password
+   - Verify token hasn't expired (default: 1 hour)
+   - Ensure token is properly formatted in the Authorization header
+
+2. **400 Bad Request**:
+   - Check request body format
+   - Ensure all required fields are provided
+   - Verify email format is valid
+
+3. **409 Conflict**:
+   - Username or email already exists
+   - Try registering with different credentials
