@@ -32,13 +32,34 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
   }'
 ```
 
-The response will contain a JWT token that should be included in subsequent requests:
+The response will contain a JWT token in JSON format:
 
 ```json
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNjQ0MzM0NTY3LCJleHAiOjE2NDQzMzgxNjd9.8Tj1HZhSAZ_IbY3OsP8JXYcVViLKRF0VsEKlA-1G5XA"
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNjQ0MzM0NTY3LCJleHAiOjE2NDQzMzgxNjd9.8Tj1HZhSAZ_IbY3OsP8JXYcVViLKRF0VsEKlA-1G5XA"
+}
 ```
 
-### Accessing Protected Resources
+### Testing Authentication with the Test Endpoint
+
+You can verify your authentication is working correctly by accessing the test endpoint:
+
+```bash
+curl -X GET http://localhost:8080/api/v1/test/secured \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNjQ0MzM0NTY3LCJleHAiOjE2NDQzMzgxNjd9.8Tj1HZhSAZ_IbY3OsP8JXYcVViLKRF0VsEKlA-1G5XA"
+```
+
+A successful response will look like:
+
+```json
+{
+  "message": "Hello World! This is a secured endpoint.",
+  "authenticated": true,
+  "username": "test@example.com"
+}
+```
+
+### Accessing Other Protected Resources
 
 ```bash
 curl -X GET http://localhost:8080/api/v1/some-protected-endpoint \
@@ -82,10 +103,15 @@ curl -X GET http://localhost:8080/api/v1/some-protected-endpoint \
    - Tests tab (to automatically set the token variable):
      ```javascript
      var jsonData = pm.response.json();
-     pm.environment.set("token", jsonData);
+     pm.environment.set("token", jsonData.token);
      ```
 
-4. **Protected Endpoint Request**:
+4. **Test Authentication Endpoint**:
+   - Method: GET
+   - URL: {{baseUrl}}/api/v1/test/secured
+   - Authorization tab: Bearer Token, value: {{token}}
+
+5. **Other Protected Endpoint Request**:
    - Method: GET
    - URL: {{baseUrl}}/api/v1/some-protected-endpoint
    - Authorization tab: Bearer Token, value: {{token}}
@@ -94,14 +120,17 @@ curl -X GET http://localhost:8080/api/v1/some-protected-endpoint \
 
 1. **401 Unauthorized**:
    - Check if you're using the correct email/password
-   - Verify token hasn't expired (default: 1 hour)
+   - Verify token hasn't expired (default: 24 hours)
    - Ensure token is properly formatted in the Authorization header
 
-2. **400 Bad Request**:
+2. **403 Forbidden**:
+   - You are authenticated but don't have permission for the resource
+
+3. **400 Bad Request**:
    - Check request body format
    - Ensure all required fields are provided
    - Verify email format is valid
 
-3. **409 Conflict**:
+4. **409 Conflict**:
    - Username or email already exists
    - Try registering with different credentials

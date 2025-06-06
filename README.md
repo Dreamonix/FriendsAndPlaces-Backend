@@ -79,6 +79,11 @@ http://localhost:8080/swagger-ui/index.html
 For a comprehensive guide on how to use the API documentation, see:
 - [API Documentation Guide](docs/api-documentation.md)
 
+### Additional Documentation
+
+- [Security Documentation](docs/security.md) - Detailed information about JWT authentication, token lifecycle, and security best practices
+- [Authentication Testing Guide](docs/authentication-testing.md) - Examples for testing the auth endpoints with cURL and Postman
+
 ## Project Structure
 
 ```
