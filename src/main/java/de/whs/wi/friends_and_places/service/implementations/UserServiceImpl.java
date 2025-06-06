@@ -2,6 +2,10 @@ package de.whs.wi.friends_and_places.service.implementations;
 
 import de.whs.wi.friends_and_places.controller.dto.UserLoginDTO;
 import de.whs.wi.friends_and_places.controller.dto.UserRegisterDTO;
+import de.whs.wi.friends_and_places.error.AuthenticationException;
+import de.whs.wi.friends_and_places.error.DuplicateResourceException;
+import de.whs.wi.friends_and_places.error.ResourceNotFoundException;
+import de.whs.wi.friends_and_places.error.ValidationException;
 import de.whs.wi.friends_and_places.model.User;
 import de.whs.wi.friends_and_places.repository.UserRepository;
 import de.whs.wi.friends_and_places.service.UserService;
@@ -36,22 +40,29 @@ public class UserServiceImpl implements UserService {
     }
 
     public User findById(Long id) {
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
 
     public User register(UserRegisterDTO userRegisterDTO) {
         if (userRegisterDTO == null) {
-            throw new IllegalArgumentException("UserRegisterDTO must not be null");
+            throw new ValidationException("User registration data must not be null");
         }
         if (userRegisterDTO.getUsername() == null || userRegisterDTO.getEmail() == null ||
             userRegisterDTO.getPassword() == null || userRegisterDTO.getCity() == null ||
             userRegisterDTO.getZipCode() == null || userRegisterDTO.getStreet() == null ||
             userRegisterDTO.getHouseNumber() == null || userRegisterDTO.getMobile() == null) {
-            throw new IllegalArgumentException("All fields in UserRegisterDTO must be provided");
+            throw new ValidationException("All fields in user registration data must be provided");
         }
-        if (existsByUsername(userRegisterDTO.getUsername()) || existsByEmail(userRegisterDTO.getEmail())) {
-            throw new IllegalArgumentException("User already exists");
+
+        // Check for existing user with same username or email
+        if (existsByUsername(userRegisterDTO.getUsername())) {
+            throw new DuplicateResourceException("User with username '" + userRegisterDTO.getUsername() + "' already exists");
         }
+        if (existsByEmail(userRegisterDTO.getEmail())) {
+            throw new DuplicateResourceException("User with email '" + userRegisterDTO.getEmail() + "' already exists");
+        }
+
         User user = new User();
         user.setUsername(userRegisterDTO.getUsername());
         user.setEmail(userRegisterDTO.getEmail());
@@ -94,14 +105,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String authenticate(UserLoginDTO userLoginDTO) {
-                Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        userLoginDTO.getEmail(),
-                        userLoginDTO.getPassword()
-                ));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return jwtUtil.generateToken(userDetails);
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            userLoginDTO.getEmail(),
+                            userLoginDTO.getPassword()
+                    ));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            return jwtUtil.generateToken(userDetails);
+        } catch (org.springframework.security.core.AuthenticationException ex) {
+            throw new AuthenticationException("Invalid email or password");
+        }
     }
 }
-
