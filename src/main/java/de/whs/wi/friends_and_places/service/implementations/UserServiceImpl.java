@@ -114,8 +114,8 @@ public class UserServiceImpl implements UserService {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             return jwtUtil.generateToken(userDetails);
-        } catch (org.springframework.security.core.AuthenticationException ex) {
-            throw new AuthenticationException("Invalid email or password");
+        } catch (AuthenticationException ex) {
+            throw new de.whs.wi.friends_and_places.error.AuthenticationException("Invalid email or password");
         }
     }
 }
