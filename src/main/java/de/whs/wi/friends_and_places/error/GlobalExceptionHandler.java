@@ -82,23 +82,39 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Handle validation exceptions.
+     * Handle custom validation exceptions.
      */
-    @ExceptionHandler({ValidationException.class, MethodArgumentNotValidException.class})
+    @ExceptionHandler(ValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<ApiError> handleValidationException(
-            Exception ex,
+    public ResponseEntity<ApiError> handleCustomValidationException(
+            ValidationException ex,
             HttpServletRequest request) {
 
-        String message = ex.getMessage();
-        if (ex instanceof MethodArgumentNotValidException validationEx) {
-            Map<String, String> errors = new HashMap<>();
-            validationEx.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
-            );
-            message = "Validation failed: " + errors;
-        }
+        ApiError error = ApiError.create(
+                request.getRequestURI(),
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                "VALIDATION_ERROR"
+        );
 
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle method argument not valid exceptions.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
+
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+            errors.put(error.getField(), error.getDefaultMessage())
+        );
+        String message = "Validation failed: " + errors;
         ApiError error = ApiError.create(
                 request.getRequestURI(),
                 message,
