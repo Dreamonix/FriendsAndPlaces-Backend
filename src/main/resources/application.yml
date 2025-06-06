@@ -3,14 +3,14 @@ spring:
   application:
     name: FriendsAndPlaces
 
-# Default profile to activate if none specified (e.g., for local running without a profile)
-  profiles:
-    active: dev
-
-# General JPA Settings
-  jpa:
-    open-in-view: false # Good practice for REST APIs to avoid lazy loading issues
-
-# Server Port
-server:
-  port: 8080 # Default port for the application
+# Springdoc OpenAPI Configuration
+springdoc:
+  api-docs.enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui/index.html
+  pathsToMatch: /api/v1/**
+  packages-to-scan: de.whs.wi.friends_and_places.controller
+  packages-to-exclude: de.whs.wi.friends_and_places.error
+  override-with-generic-response: false
+  auto-tag-classes: true
