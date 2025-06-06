@@ -57,6 +57,7 @@ public class AuthenticationIntegrationTest {
         // Set up MockMvc with security
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
+                .apply(org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity())
                 .build();
 
         testUser = new UserRegisterDTO();
@@ -103,8 +104,13 @@ public class AuthenticationIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        // Extract JWT token from response
-        String token = loginResult.getResponse().getContentAsString();
+        // Extract JWT token from response - now in JSON format
+        String responseJson = loginResult.getResponse().getContentAsString();
+        assertNotNull(responseJson, "Response should not be null");
+        assertFalse(responseJson.isEmpty(), "Response should not be empty");
+
+        // Parse the JSON response to get the token
+        String token = objectMapper.readTree(responseJson).get("token").asText();
         assertNotNull(token, "JWT token should not be null");
         assertFalse(token.isEmpty(), "JWT token should not be empty");
 
@@ -203,8 +209,12 @@ public class AuthenticationIntegrationTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
-        // Extract JWT token from response
-        String token = loginResult.getResponse().getContentAsString();
+        // Extract JWT token from response - now in JSON format
+        String responseJson = loginResult.getResponse().getContentAsString();
+        assertNotNull(responseJson, "Response should not be null");
+
+        // Parse the JSON response to get the token
+        String token = objectMapper.readTree(responseJson).get("token").asText();
         assertNotNull(token, "JWT token should not be null");
 
         // 3. Verify the token contains the expected user information
@@ -215,18 +225,15 @@ public class AuthenticationIntegrationTest {
         assertFalse(jwtUtil.extractExpiration(token).before(new java.util.Date()),
                 "Token should not be expired");
 
-        // Note: Once you implement protected endpoints, you can uncomment and
-        // adapt the code below to test authorization with the JWT token
+        // Test access to a protected endpoint
 
-        /*
-        // Try to access a protected endpoint without token - should be forbidden
-        mockMvc.perform(get("/api/v1/your-protected-endpoint"))
-                .andExpect(status().isForbidden());
+        // Try to access the secured endpoint without a token - should be forbidden
+        mockMvc.perform(get("/api/v1/test/secured"))
+                .andExpect(status().isForbidden()); // Using 403 Forbidden which is what the application actually returns
 
-        // Access the same endpoint with token - should be authorized
-        mockMvc.perform(get("/api/v1/your-protected-endpoint")
+        // Access the same endpoint with a valid token - should be authorized
+        mockMvc.perform(get("/api/v1/test/secured")
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
-        */
     }
 }

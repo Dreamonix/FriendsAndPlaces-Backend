@@ -56,7 +56,7 @@ class AuthControllerTest {
     }
 
     @Test
-    @DisplayName("Login should return 200 and JWT string")
+    @DisplayName("Login should return 200 and JWT token in JSON format")
     void login_ReturnsJwt() throws Exception {
         UserLoginDTO dto = new UserLoginDTO();
         dto.setEmail("test@example.com");
@@ -67,7 +67,6 @@ class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("mock-jwt-token"));
+                .andExpect(jsonPath("$.token").value("mock-jwt-token"));
     }
 }
-

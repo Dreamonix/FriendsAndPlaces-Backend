@@ -7,14 +7,14 @@ spring:
     password:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: create-drop # Ensures a clean database for each test run
     properties:
       hibernate:
         format_sql: true
 
-# JWT Configuration for Tests
+# JWT Configuration for Test Environment
 jwt:
-  secret: yourTestJwtSecret1234567890abcdefghijklmnopqrstuvwxyz # Make it long enough (e.g., 256 bits/32 characters base64 encoded for HS256)
-  expiration: 3600 # 1 hour in seconds
+  secret: testSecretKey123456789012345678901234567890
+  expiration: 86400000 # 24 hours
