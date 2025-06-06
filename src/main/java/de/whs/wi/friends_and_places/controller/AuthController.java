@@ -2,6 +2,7 @@ package de.whs.wi.friends_and_places.controller;
 
 import de.whs.wi.friends_and_places.controller.dto.UserLoginDTO;
 import de.whs.wi.friends_and_places.controller.dto.UserRegisterDTO;
+import de.whs.wi.friends_and_places.error.ApiError;
 import de.whs.wi.friends_and_places.model.User;
 import de.whs.wi.friends_and_places.service.UserService;
 import de.whs.wi.friends_and_places.util.JwtUtil;
@@ -39,9 +40,12 @@ public class AuthController {
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = User.class)) }),
             @ApiResponse(responseCode = "400", description = "Invalid input",
-                    content = @Content),
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class)) }),
             @ApiResponse(responseCode = "409", description = "User already exists",
-                    content = @Content) })
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class)) })
+    })
     @PostMapping("/register")
     public ResponseEntity<User> registerUser(@RequestBody UserRegisterDTO newUser) {
         User registeredUser = userService.register(newUser);
@@ -53,7 +57,9 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "User logged in successfully",
                     content = { @Content(mediaType = "application/json") }),
             @ApiResponse(responseCode = "401", description = "Invalid username or password",
-                    content = @Content) })
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class)) })
+    })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginDTO user) {
         String jwt = userService.authenticate(user);
