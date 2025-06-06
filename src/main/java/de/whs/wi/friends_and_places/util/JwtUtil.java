@@ -42,7 +42,15 @@ public class JwtUtil {
 
     // Extracts all claims from the JWT token
     private Claims extractAllClaims(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(secret)
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (io.jsonwebtoken.SignatureException e) {
+            // Re-throw the SignatureException to ensure it's properly propagated
+            throw new io.jsonwebtoken.SignatureException("Invalid JWT signature", e);
+        }
     }
 
     // Checks if the JWT token is expired
@@ -70,8 +78,9 @@ public class JwtUtil {
 
     // Validates the JWT token by checking if the username matches and if the token is not expired
     public Boolean validateToken(String token, UserDetails userDetails) {
+        // This will throw exceptions like SignatureException, ExpiredJwtException, or MalformedJwtException
+        // if the token is invalid, which will be propagated to the caller
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 }
-      
