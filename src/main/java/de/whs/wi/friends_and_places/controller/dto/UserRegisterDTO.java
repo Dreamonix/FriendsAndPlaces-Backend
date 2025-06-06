@@ -1,13 +1,31 @@
 package de.whs.wi.friends_and_places.controller.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Data transfer object for user registration")
 public class UserRegisterDTO {
+    @Schema(description = "Username for the new account", example = "johndoe", required = true)
     private String username;
+
+    @Schema(description = "Email address", example = "john.doe@example.com", required = true)
     private String email;
+
+    @Schema(description = "Password for the account", example = "securePassword123", required = true)
     private String password;
+
+    @Schema(description = "City of residence", example = "Berlin")
     private String city;
+
+    @Schema(description = "Postal/ZIP code", example = "10115")
     private String zipCode;
+
+    @Schema(description = "Street name", example = "Friedrichstraße")
     private String street;
+
+    @Schema(description = "House number", example = "123")
     private String houseNumber;
+
+    @Schema(description = "Mobile phone number", example = "+49123456789")
     private String mobile;
 
     public UserRegisterDTO() {
