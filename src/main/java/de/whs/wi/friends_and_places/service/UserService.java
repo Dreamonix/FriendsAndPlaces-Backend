@@ -1,56 +1,61 @@
 package de.whs.wi.friends_and_places.service;
 
+import de.whs.wi.friends_and_places.controller.dto.UserLoginDTO;
+import de.whs.wi.friends_and_places.controller.dto.UserRegisterDTO;
 import de.whs.wi.friends_and_places.model.User;
-import de.whs.wi.friends_and_places.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-@Service
-public class UserService {
+public interface UserService {
+    /**
+     * Finds a user by their ID.
+     *
+     * @param id the ID of the user
+     * @return the User object if found, otherwise null
+     */
+    User findById(Long id);
+    /**
+     * Registers a new user with the provided details.
+     *
+     * @param userRegisterDTO the DTO containing user registration details
+     * @return the registered User object
+     * @throws IllegalArgumentException if any required field is missing or if the user already exists
+     */
+    User register(UserRegisterDTO userRegisterDTO);
+    /**
+     * Finds a user by their username.
+     *
+     * @param username the username of the user
+     * @return an Optional containing the User if found, otherwise empty
+     */
+    Optional<User> findByUsername(String username);
+    /**
+     * Finds a user by their email.
+     *
+     * @param email the email of the user
+     * @return an Optional containing the User if found, otherwise empty
+     */
+    Optional<User> findByEmail(String email);
+    /**
+     * Saves the user to the repository.
+     *
+     * @param user the User object to save
+     * @return the saved User object
+     */
+    User save(User user);
+    /**
+     * Changes the password of the user.
+     *
+     * @param user the User object whose password is to be changed
+     * @param newPassword the new password to set
+     */
+    void changePassword(User user, String newPassword);
+    /**
+     * Deletes the user from the repository.
+     *
+     * @param user the User object to delete
+     */
+    void deleteUser(User user);
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
-
-    public User register(String username, String email, String password, String city, String zipCode, String street, String houseNumber, String mobile) {
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setCity(city);
-        user.setZipCode(zipCode);
-        user.setStreet(street);
-        user.setHouseNumber(houseNumber);
-        user.setMobile(mobile);
-        return userRepository.save(user);
-    }
-
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
-    }
-
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    public User save(User user) {
-        return userRepository.save(user);
-    }
-
-    public void changePassword(User user, String newPassword) {
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-    }
-
-    public void deleteUser(User user) {
-        userRepository.delete(user);
-    }
+    String authenticate(UserLoginDTO userLoginDTO);
 }
