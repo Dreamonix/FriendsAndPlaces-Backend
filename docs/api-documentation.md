@@ -31,7 +31,7 @@ No authentication is required to view the documentation, making it easy to explo
 
 ### 1. API Overview
 
-When you first open the Swagger UI, you'll see an overview of all available API endpoints grouped by controllers (e.g., Authentication, Users, Locations).
+When you first open the Swagger UI, you'll see an overview of all available API endpoints grouped by controllers (e.g., Authentication, Test, Users, Locations).
 
 *Note: To help others understand the interface, consider adding a screenshot of your Swagger UI here showing the main page with expanded Authentication endpoints.*
 
@@ -93,10 +93,36 @@ For example, when a user tries to register with an email that's already in use, 
 Many API endpoints require authentication using JSON Web Tokens (JWT):
 
 1. First, register a user or login to obtain a JWT token
-2. For subsequent requests to protected endpoints, include the token in the Authorization header:
+2. The login response will return the token in JSON format:
+   ```json
+   {
+     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+   }
+   ```
+3. For subsequent requests to protected endpoints, include the token in the Authorization header:
    - Format: `Bearer {your-token}`
 
 In the Swagger UI, you can click the "Authorize" button at the top of the page to enter your token, which will then be automatically included in all API requests you make through the UI.
+
+## Testing Authentication
+
+The API includes a dedicated test endpoint for verifying authentication:
+
+- **Endpoint**: GET `/api/v1/test/secured`
+- **Purpose**: Verifies that your authentication token is working correctly
+- **Response**: Returns information about the authenticated user and confirmation of successful authentication
+- **Example Response**:
+  ```json
+  {
+    "message": "Hello World! This is a secured endpoint.",
+    "authenticated": true,
+    "username": "user@example.com",
+    "authName": "user@example.com",
+    "authIsAuthenticated": true
+  }
+  ```
+
+This endpoint is useful for troubleshooting authentication issues and confirming that your token is valid.
 
 ## API Versioning
 
