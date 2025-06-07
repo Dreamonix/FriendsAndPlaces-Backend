@@ -1,0 +1,67 @@
+# Production Application Configuration
+spring:
+  application:
+    name: FriendsAndPlaces
+  
+  # Database Configuration
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/friends_and_places}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
+  
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: ${SPRING_JPA_SHOW_SQL:false}
+    database-platform: ${SPRING_JPA_DATABASE_PLATFORM:org.hibernate.dialect.PostgreSQLDialect}
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+
+# Server Configuration
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:your-default-secret-key}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+# Springdoc OpenAPI Configuration
+springdoc:
+  api-docs.enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui/index.html
+  pathsToMatch: /api/v1/**
+  packages-to-scan: de.whs.wi.friends_and_places.controller
+  packages-to-exclude: de.whs.wi.friends_and_places.error
+  override-with-generic-response: false
+  auto-tag-classes: true
+
+# Logging Configuration
+logging:
+  level:
+    root: ${LOGGING_LEVEL_ROOT:INFO}
+    de.whs.wi.friends_and_places: ${LOGGING_LEVEL_DE_WHS_WI_FRIENDS_AND_PLACES:DEBUG}
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Management and Health Check
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
