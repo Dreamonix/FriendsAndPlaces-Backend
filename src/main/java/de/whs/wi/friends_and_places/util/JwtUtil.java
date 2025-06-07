@@ -4,14 +4,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.Base64;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtil {
@@ -44,12 +48,15 @@ public class JwtUtil {
     private Claims extractAllClaims(String token) {
         try {
             return Jwts.parser()
-                    .setSigningKey(secret)
-                    .parseClaimsJws(token)
-                    .getBody();
-        } catch (io.jsonwebtoken.SignatureException e) {
-            // Re-throw the SignatureException to ensure it's properly propagated
-            throw new io.jsonwebtoken.SignatureException("Invalid JWT signature", e);
+                    .verifyWith(Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret)))
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (ExpiredJwtException | MalformedJwtException | SignatureException e) {
+            // Rethrow specific JWT exceptions for proper handling in tests and other components
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid JWT token", e);
         }
     }
 
@@ -68,18 +75,18 @@ public class JwtUtil {
     // Creates a JWT token with the specified claims and subject
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .claims(claims)
+                .subject(subject)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
+                .signWith(Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret)))
                 .compact();
     }
 
     // Validates the JWT token by checking if the username matches and if the token is not expired
     public Boolean validateToken(String token, UserDetails userDetails) {
-        // This will throw exceptions like SignatureException, ExpiredJwtException, or MalformedJwtException
-        // if the token is invalid, which will be propagated to the caller
+        // This will propagate exceptions like SignatureException, ExpiredJwtException, or MalformedJwtException
+        // if the token is invalid
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
