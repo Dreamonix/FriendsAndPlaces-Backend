@@ -5,7 +5,8 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,6 +19,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Base64;
+import javax.crypto.SecretKey;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,12 +31,16 @@ class JwtUtilTest {
     private String token;
     private UserDetails userDetails;
     private String secret;
+    private SecretKey secretKey;
     private long expiration;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        secret = "testsecret";
+        // Generate a secure key for HS256
+        secretKey = Keys.hmacShaKeyFor("secretkey123fdaflsdhöoihiioewrhaöjfaorlsahiofoihflgisohorlkf949842".getBytes());
+        // Convert the key to Base64 encoded string
+        secret = Base64.getEncoder().encodeToString(secretKey.getEncoded());
         ReflectionTestUtils.setField(jwtUtil, "secret", secret);
         // 1 hour
         expiration = 1000 * 60 * 60;
@@ -45,11 +52,11 @@ class JwtUtilTest {
     private String generateToken(UserDetails userDetails, Date expirationDate) {
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(expirationDate)
-                .signWith(SignatureAlgorithm.HS256, secret)
+                .claims(claims)
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(expirationDate)
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -111,3 +118,4 @@ class JwtUtilTest {
                 "Token should be invalid for a user different from the one it was created for");
     }
 }
+
