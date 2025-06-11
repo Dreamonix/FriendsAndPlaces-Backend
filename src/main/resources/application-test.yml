@@ -16,5 +16,5 @@ spring:
 
 # JWT Configuration for Test Environment
 jwt:
-  secret: testSecretKey123456789012345678901234567890
+  secret: FiJyPNdycju8rMCzfVtH69mS5LCpAQZ4SmBshSt2jLA=
   expiration: 86400000 # 24 hours
