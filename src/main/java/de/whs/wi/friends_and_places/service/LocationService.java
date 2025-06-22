@@ -39,4 +39,14 @@ public interface LocationService {
      * @return A list of all friends' locations.
      */
     List<LocationResponseDTO> getFriendsLocations(String email);
+
+    /**
+     * Get the latest location for a user by username, only if the requesting user and target user are friends.
+     *
+     * @param requestingUserEmail The email of the user making the request.
+     * @param targetUsername The username of the user whose location is being requested.
+     * @return The latest location if users are friends.
+     * @throws IllegalStateException if users are not friends
+     */
+    LocationResponseDTO getFriendLocationByUsername(String requestingUserEmail, String targetUsername);
 }

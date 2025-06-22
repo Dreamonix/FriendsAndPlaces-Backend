@@ -25,7 +25,7 @@ public class LocationController {
         this.locationService = locationService;
     }
 
-    @PostMapping
+    @PutMapping
     @Operation(summary = "Log a new location",
                description = "Create a new location entry for the authenticated user. " +
                              "Provide either latitude/longitude coordinates or a complete address.")
@@ -64,5 +64,16 @@ public class LocationController {
         List<LocationResponseDTO> friendsLocations = locationService.getFriendsLocations(username);
         return ResponseEntity.ok(friendsLocations);
     }
-}
 
+    @GetMapping("/user/{username}")
+    @Operation(summary = "Get user's location by username",
+               description = "Retrieve the latest location of a user by their username only if you are friends with them")
+    public ResponseEntity<LocationResponseDTO> getUserLocationByUsername(
+            @PathVariable String username,
+            Authentication authentication) {
+
+        String requestingUserEmail = authentication.getName();
+        LocationResponseDTO location = locationService.getFriendLocationByUsername(requestingUserEmail, username);
+        return ResponseEntity.ok(location);
+    }
+}
