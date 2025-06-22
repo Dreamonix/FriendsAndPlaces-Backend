@@ -30,11 +30,25 @@ public class GeocodeApiServiceImpl implements GeocodeApiService {
     private final RestTemplate restTemplate;
     private final ExternalApiConfig apiConfig;
 
+    /**
+     * Constructor for GeocodeApiServiceImpl
+     *
+     * @param restTemplate The RestTemplate to use for API calls
+     * @param apiConfig    The configuration properties for the external API
+     */
     public GeocodeApiServiceImpl(RestTemplate restTemplate, ExternalApiConfig apiConfig) {
         this.restTemplate = restTemplate;
         this.apiConfig = apiConfig;
     }
 
+    /**
+     * Retrieves geographic data for a given postal/zip code using the Geoapify Geocoding API
+     *
+     * @param zipCode The postal/zip code to search for
+     * @return GeocodingData object containing location information for the zip code
+     * @throws ResourceNotFoundException if no data is found for the given zip code
+     * @throws RuntimeException         if there is an error communicating with the API
+     */
     @Override
     public GeocodingData getGeoDataFromZipCode(String zipCode) {
         logger.info("Fetching geo data for zip code: {}", zipCode);
@@ -84,6 +98,17 @@ public class GeocodeApiServiceImpl implements GeocodeApiService {
         }
     }
 
+    /**
+     * Retrieves geographic data for a specific street address using the Geoapify Geocoding API
+     *
+     * @param street     The street name
+     * @param housenumber The house or building number
+     * @param city       The city or locality
+     * @param country    The country
+     * @return GeocodingData object containing detailed location information for the address
+     * @throws ResourceNotFoundException if no data is found for the given address
+     * @throws RuntimeException         if there is an error communicating with the API
+     */
     @Override
     public GeocodingData getGeoDataFromAddress(String street,String housenumber, String city, String country){
         logger.info("Fetching geo data for address: {}, {}, {}, {}", street,housenumber, city, country);
@@ -127,6 +152,64 @@ public class GeocodeApiServiceImpl implements GeocodeApiService {
         } catch (HttpClientErrorException.NotFound e) {
             logger.error("Geo data not found for address: {}, {}, {}", street, city, country, e);
             throw new ResourceNotFoundException("No geo data found for address: " + street + ", " + city + ", " + country);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            logger.error("Error calling geocode API: {}", e.getMessage(), e);
+            throw new RuntimeException("Error fetching geo data: " + e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Unexpected error when calling geocode API", e);
+            throw new RuntimeException("Unexpected error fetching geo data", e);
+        }
+    }
+
+    /**
+     * Performs reverse geocoding to retrieve address information for specific coordinates
+     *
+     * @param latitude  The latitude coordinate
+     * @param longitude The longitude coordinate
+     * @return GeocodingData object containing address information for the given coordinates
+     * @throws ResourceNotFoundException if no data is found for the given coordinates
+     * @throws RuntimeException         if there is an error communicating with the API
+     */
+    @Override
+    public GeocodingData getReverseGeoData(double latitude, double longitude) {
+        logger.info("Fetching reverse geo data for coordinates: {}, {}", latitude, longitude);
+
+        try {
+            // Create URL with parameters
+            String url = UriComponentsBuilder.fromHttpUrl(apiConfig.getBaseUrl() + "/geocode/reverse")
+                    .queryParam("lat", latitude)
+                    .queryParam("lon", longitude)
+                    .queryParam("lang", "en")
+                    .queryParam("limit", "1")
+                    .queryParam("format", "json")
+                    .queryParam("apiKey", apiConfig.getApiKey())
+                    .build()
+                    .toUriString();
+
+            // For Geoapify, the API key is passed as a query parameter, not in headers
+            HttpEntity<Void> requestEntity = new HttpEntity<>(new HttpHeaders());
+
+            // Make the API call using a parameterized type to avoid unchecked assignment warning
+            ResponseEntity<java.util.HashMap<String, Object>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    requestEntity,
+                    new org.springframework.core.ParameterizedTypeReference<java.util.HashMap<String, Object>>() {}
+            );
+
+            if (response.getBody() == null) {
+                throw new ResourceNotFoundException("No geo data found for coordinates: " + latitude + ", " + longitude);
+            }
+
+            // Log the response to see its structure
+            logger.debug("API Response: {}", response.getBody());
+
+            // Extract geocoding data from response
+            return extractGeocodingDataFromResponse(response.getBody(), "coordinates: " + latitude + ", " + longitude);
+
+        } catch (HttpClientErrorException.NotFound e) {
+            logger.error("Geo data not found for coordinates: {}, {}", latitude, longitude, e);
+            throw new ResourceNotFoundException("No geo data found for coordinates: " + latitude + ", " + longitude);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             logger.error("Error calling geocode API: {}", e.getMessage(), e);
             throw new RuntimeException("Error fetching geo data: " + e.getMessage(), e);
@@ -298,6 +381,4 @@ public class GeocodeApiServiceImpl implements GeocodeApiService {
         throw new ResourceNotFoundException("Could not parse geocoding data for " + locationDescription);
     }
 }
-
-
 

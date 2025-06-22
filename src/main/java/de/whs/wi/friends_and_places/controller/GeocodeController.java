@@ -47,4 +47,14 @@ public class GeocodeController {
        GeocodingData geocodingData = geocodeApiService.getGeoDataFromAddress(street,housenumber, city, country);
        return ResponseEntity.ok(geocodingData);
    }
+
+   @GetMapping("/coordinates")
+    public ResponseEntity<GeocodingData> getLocationByCoordinates(
+              @RequestParam double latitude,
+              @RequestParam double longitude) {
+         logger.info("Request received for geocoding data of coordinates: {}, {}", latitude, longitude);
+
+         GeocodingData geocodingData = geocodeApiService.getReverseGeoData(latitude, longitude);
+         return ResponseEntity.ok(geocodingData);
+    }
 }
