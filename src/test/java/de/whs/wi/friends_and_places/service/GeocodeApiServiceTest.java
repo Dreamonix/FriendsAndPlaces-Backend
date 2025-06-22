@@ -78,8 +78,8 @@ public class GeocodeApiServiceTest {
         assertEquals("North Rhine-Westphalia", result.getState());
         assertEquals("Isselburg", result.getCity());
         assertEquals("46419", result.getPostcode());
-        assertEquals(6.456254616, result.getLon());
-        assertEquals(51.83433668, result.getLat());
+        assertEquals(6.456254616, result.getLon(), 0.000001);
+        assertEquals(51.83433668, result.getLat(), 0.000001);
     }
 
 
