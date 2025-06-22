@@ -59,3 +59,4 @@ public interface UserService {
 
     String authenticate(UserLoginDTO userLoginDTO);
 }
+
