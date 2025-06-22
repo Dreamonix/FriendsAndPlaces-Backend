@@ -86,7 +86,7 @@ public class GeocodeApiServiceImpl implements GeocodeApiService {
 
     @Override
     public GeocodingData getGeoDataFromAddress(String street,String housenumber, String city, String country){
-        logger.info("Fetching geo data for address: {}, {}, {}", street,housenumber, city, country);
+        logger.info("Fetching geo data for address: {}, {}, {}, {}", street,housenumber, city, country);
 
         try {
             // Create URL with parameters
