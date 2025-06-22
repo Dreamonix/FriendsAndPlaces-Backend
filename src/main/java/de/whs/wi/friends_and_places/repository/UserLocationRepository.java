@@ -38,7 +38,7 @@ public interface UserLocationRepository extends JpaRepository<UserLocation, Long
      * @param users The list of users whose latest locations to find
      * @return List of the most recent location for each user
      */
-    @Query("SELECT ul FROM UserLocation ul WHERE ul.id IN " +
-           "(SELECT MAX(ul2.id) FROM UserLocation ul2 WHERE ul2.user IN :users GROUP BY ul2.user)")
+    @Query("SELECT ul FROM UserLocation ul WHERE ul.createdAt IN " +
+           "(SELECT MAX(ul2.createdAt) FROM UserLocation ul2 WHERE ul2.user IN :users GROUP BY ul2.user)")
     List<UserLocation> findLatestLocationsByUsers(@Param("users") List<User> users);
 }
