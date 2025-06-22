@@ -9,6 +9,7 @@ Friends and Places is a backend application that manages user registration, logi
 - **User Management**: Registration and authentication
 - **JWT Authentication**: Secure API access with JSON Web Tokens
 - **Location Tracking**: Store and retrieve user locations
+- **Geocoding**: Convert between addresses, postal codes, and geographic coordinates
 - **Comprehensive API Documentation**: Interactive OpenAPI/Swagger documentation
 
 ## Technology Stack
