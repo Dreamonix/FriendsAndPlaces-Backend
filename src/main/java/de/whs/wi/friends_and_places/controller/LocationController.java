@@ -16,7 +16,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/places")
-@Tag(name = "Locations", description = "Operations for managing user locations")
+@Tag(name = "Places", description = "Operations for managing user locations")
 public class LocationController {
 
     private final LocationService locationService;
