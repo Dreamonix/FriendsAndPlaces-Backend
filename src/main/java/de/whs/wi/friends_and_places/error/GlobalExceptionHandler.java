@@ -170,6 +170,26 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handle geocoding validation exceptions.
+     */
+    @ExceptionHandler(GeocodingValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ApiError> handleGeocodingValidationException(
+            GeocodingValidationException ex,
+            HttpServletRequest request) {
+
+        ApiError error = ApiError.create(
+                request.getRequestURI(),
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                "GEOCODING_VALIDATION_ERROR"
+        );
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
      * Fallback handler for any unhandled exceptions.
      */
     @ExceptionHandler(Exception.class)
