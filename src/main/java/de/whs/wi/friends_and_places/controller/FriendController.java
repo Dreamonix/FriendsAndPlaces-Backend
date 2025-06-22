@@ -181,6 +181,25 @@ public class FriendController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Operation(summary = "Get all available users")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of all users in the system")
+    })
+    @GetMapping("/available-users")
+    public ResponseEntity<List<UserDTO>> getAllAvailableUsers(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        // Get all users from the system
+        List<User> allUsers = userService.findAllUsers();
+
+        // Convert to DTOs
+        List<UserDTO> userDTOs = allUsers.stream()
+                .map(this::convertToUserDTO)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(userDTOs, HttpStatus.OK);
+    }
+
     /**
      * Convert a FriendRequest entity to a DTO for API responses.
      */
