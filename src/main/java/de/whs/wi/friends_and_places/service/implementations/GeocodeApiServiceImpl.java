@@ -2,6 +2,7 @@ package de.whs.wi.friends_and_places.service.implementations;
 
 import de.whs.wi.friends_and_places.config.ExternalApiConfig;
 import de.whs.wi.friends_and_places.error.ResourceNotFoundException;
+import de.whs.wi.friends_and_places.error.GeocodingValidationException;
 import de.whs.wi.friends_and_places.model.GeocodingData;
 import de.whs.wi.friends_and_places.service.GeocodeApiService;
 import org.slf4j.Logger;
@@ -168,11 +169,15 @@ public class GeocodeApiServiceImpl implements GeocodeApiService {
      * @param longitude The longitude coordinate
      * @return GeocodingData object containing address information for the given coordinates
      * @throws ResourceNotFoundException if no data is found for the given coordinates
+     * @throws GeocodingValidationException if coordinates are outside valid ranges
      * @throws RuntimeException         if there is an error communicating with the API
      */
     @Override
     public GeocodingData getReverseGeoData(double latitude, double longitude) {
         logger.info("Fetching reverse geo data for coordinates: {}, {}", latitude, longitude);
+
+        // Validate latitude and longitude before making the API call
+        validateCoordinates(latitude, longitude);
 
         try {
             // Create URL with parameters
@@ -380,5 +385,20 @@ public class GeocodeApiServiceImpl implements GeocodeApiService {
         // If we can't properly parse the response, throw an exception
         throw new ResourceNotFoundException("Could not parse geocoding data for " + locationDescription);
     }
-}
 
+    /**
+     * Validates the latitude and longitude coordinates.
+     *
+     * @param latitude  The latitude to validate
+     * @param longitude The longitude to validate
+     * @throws GeocodingValidationException if the coordinates are outside the valid range
+     */
+    private void validateCoordinates(double latitude, double longitude) {
+        if (latitude < -90.0 || latitude > 90.0) {
+            throw new GeocodingValidationException("Latitude out of range: " + latitude);
+        }
+        if (longitude < -180.0 || longitude > 180.0) {
+            throw new GeocodingValidationException("Longitude out of range: " + longitude);
+        }
+    }
+}
