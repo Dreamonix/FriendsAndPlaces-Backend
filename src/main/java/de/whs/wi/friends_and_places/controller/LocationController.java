@@ -25,7 +25,7 @@ public class LocationController {
         this.locationService = locationService;
     }
 
-    @PostMapping
+    @PutMapping
     @Operation(summary = "Log a new location",
                description = "Create a new location entry for the authenticated user. " +
                              "Provide either latitude/longitude coordinates or a complete address.")
