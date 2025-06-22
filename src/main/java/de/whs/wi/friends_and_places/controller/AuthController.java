@@ -13,10 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -82,5 +79,19 @@ public class AuthController {
         Map<String, String> response = new HashMap<>();
         response.put("token", jwt);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/checkUsername")
+    @Operation(summary = "Check if a username is available")
+    public ResponseEntity<Boolean> checkUsername(@RequestParam String username) {
+        boolean isAvailable = userService.findByUsername(username).isEmpty();
+        return new ResponseEntity<>(isAvailable, HttpStatus.OK);
+    }
+
+    @GetMapping("/checkEmail")
+    @Operation(summary = "Check if an email is available")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+        boolean isAvailable = userService.findByEmail(email).isEmpty();
+        return new ResponseEntity<>(isAvailable, HttpStatus.OK);
     }
 }

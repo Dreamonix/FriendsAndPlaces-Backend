@@ -170,5 +170,38 @@ public class LocationServiceImpl implements LocationService {
                 .map(LocationResponseDTO::new)
                 .collect(Collectors.toList());
     }
-}
 
+    /**
+     * Get the latest location for a user by username, only if the requesting user and target user are friends
+     *
+     * @param requestingUserEmail The email of the user making the request
+     * @param targetUsername The username of the user whose location is being requested
+     * @return The latest location if users are friends
+     * @throws IllegalStateException if users are not friends
+     */
+    @Override
+    public LocationResponseDTO getFriendLocationByUsername(String requestingUserEmail, String targetUsername) {
+        // Get the requesting user
+        User requestingUser = userService.findByEmail(requestingUserEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + requestingUserEmail));
+
+        // Get the target user by username
+        User targetUser = userService.findByUsername(targetUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + targetUsername));
+
+        // Check if users are friends
+        List<User> friends = friendService.getFriends(requestingUser);
+        boolean areFriends = friends.stream()
+                .anyMatch(friend -> friend.getId().equals(targetUser.getId()));
+
+        if (!areFriends) {
+            throw new IllegalStateException("You are not friends with user: " + targetUsername);
+        }
+
+        // Get the latest location of the target user
+        UserLocation location = locationRepository.findFirstByUserOrderByCreatedAtDesc(targetUser)
+                .orElseThrow(() -> new ResourceNotFoundException("No locations found for user: " + targetUsername));
+
+        return new LocationResponseDTO(location);
+    }
+}

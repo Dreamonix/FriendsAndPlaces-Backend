@@ -4,6 +4,7 @@ import de.whs.wi.friends_and_places.controller.dto.UserLoginDTO;
 import de.whs.wi.friends_and_places.controller.dto.UserRegisterDTO;
 import de.whs.wi.friends_and_places.model.User;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
@@ -58,5 +59,11 @@ public interface UserService {
     void deleteUser(User user);
 
     String authenticate(UserLoginDTO userLoginDTO);
-}
 
+    /**
+     * Find all users in the system.
+     *
+     * @return List of all users
+     */
+    List<User> findAllUsers();
+}
