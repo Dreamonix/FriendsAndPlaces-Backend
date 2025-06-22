@@ -3,7 +3,6 @@ package de.whs.wi.friends_and_places.controller;
 import de.whs.wi.friends_and_places.controller.dto.LocationCreateDTO;
 import de.whs.wi.friends_and_places.controller.dto.LocationResponseDTO;
 import de.whs.wi.friends_and_places.service.LocationService;
-import de.whs.wi.friends_and_places.service.implementations.LocationServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
