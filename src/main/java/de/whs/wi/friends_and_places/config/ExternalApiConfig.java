@@ -5,6 +5,8 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 import java.time.Duration;
 
@@ -22,12 +24,16 @@ public class ExternalApiConfig {
 
     /**
      * Configures a RestTemplate with proper timeouts for external API calls
+     * Using newer approach instead of deprecated setConnectTimeout/setReadTimeout methods
      */
     @Bean
     public RestTemplate externalApiRestTemplate(RestTemplateBuilder builder) {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(connectionTimeout);
+        factory.setReadTimeout(readTimeout);
+
         return builder
-                .setConnectTimeout(Duration.ofMillis(connectionTimeout))
-                .setReadTimeout(Duration.ofMillis(readTimeout))
+                .requestFactory(() -> factory)
                 .build();
     }
 
