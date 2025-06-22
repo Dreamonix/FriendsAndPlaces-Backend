@@ -14,3 +14,9 @@ springdoc:
   packages-to-exclude: de.whs.wi.friends_and_places.error
   override-with-generic-response: false
   auto-tag-classes: true
+
+# External API Configuration
+external-api:
+  base-url: https://api.geoapify.com/v1
+  connection-timeout: 5000
+  read-timeout: 10000
