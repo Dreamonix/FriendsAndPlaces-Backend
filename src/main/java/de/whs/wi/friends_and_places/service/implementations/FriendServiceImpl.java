@@ -2,7 +2,6 @@ package de.whs.wi.friends_and_places.service.implementations;
 
 import de.whs.wi.friends_and_places.error.ResourceNotFoundException;
 import de.whs.wi.friends_and_places.model.FriendRequest;
-import de.whs.wi.friends_and_places.model.FriendRequest.FriendRequestStatus;
 import de.whs.wi.friends_and_places.model.User;
 import de.whs.wi.friends_and_places.repository.FriendRequestRepository;
 import de.whs.wi.friends_and_places.repository.UserRepository;
@@ -10,7 +9,7 @@ import de.whs.wi.friends_and_places.service.FriendService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import de.whs.wi.friends_and_places.controller.dto.FriendRequestStatus;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

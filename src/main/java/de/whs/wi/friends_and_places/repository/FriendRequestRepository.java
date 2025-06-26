@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import de.whs.wi.friends_and_places.controller.dto.FriendRequestStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +21,7 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, Lo
      * @param status the status of the requests
      * @return a list of friend requests
      */
-    List<FriendRequest> findByReceiverAndStatus(User receiver, FriendRequest.FriendRequestStatus status);
+    List<FriendRequest> findByReceiverAndStatus(User receiver, FriendRequestStatus status);
 
     /**
      * Find all friend requests sent by a user with a specific status.
@@ -29,7 +30,7 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, Lo
      * @param status the status of the requests
      * @return a list of friend requests
      */
-    List<FriendRequest> findBySenderAndStatus(User sender, FriendRequest.FriendRequestStatus status);
+    List<FriendRequest> findBySenderAndStatus(User sender,FriendRequestStatus status);
 
     /**
      * Find pending friend request between two users.
@@ -39,7 +40,7 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, Lo
      * @return the friend request if it exists
      */
     Optional<FriendRequest> findBySenderAndReceiverAndStatus(
-            User sender, User receiver, FriendRequest.FriendRequestStatus status);
+            User sender, User receiver,FriendRequestStatus status);
 
     /**
      * Check if a pending friend request exists between two users.
@@ -49,7 +50,7 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, Lo
      * @return true if a pending request exists, false otherwise
      */
     boolean existsBySenderAndReceiverAndStatus(
-            User sender, User receiver, FriendRequest.FriendRequestStatus status);
+            User sender, User receiver, FriendRequestStatus status);
 
     /**
      * Find all pending friend requests for a user (both sent and received).

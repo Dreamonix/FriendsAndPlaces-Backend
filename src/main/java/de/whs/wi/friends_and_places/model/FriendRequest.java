@@ -2,6 +2,7 @@ package de.whs.wi.friends_and_places.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import de.whs.wi.friends_and_places.controller.dto.FriendRequestStatus;
 
 /**
  * Entity representing a friend request between users.
@@ -34,15 +35,6 @@ public class FriendRequest {
     @Column(nullable = false)
     private FriendRequestStatus status;
 
-    /**
-     * Enum representing the possible statuses of a friend request.
-     */
-    public enum FriendRequestStatus {
-        PENDING,    // Request has been sent but not yet accepted or declined
-        ACCEPTED,   // Request has been accepted, users are now friends
-        DECLINED,   // Request has been declined
-        CANCELED    // Request was canceled by the sender
-    }
 
     // Constructors
     public FriendRequest() {
